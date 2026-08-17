@@ -4,9 +4,9 @@ export const runtime = 'nodejs';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const fileId = params.id;
+  const { id: fileId } = await params;
 
   if (!fileId) {
     return NextResponse.json({ error: 'Missing file ID' }, { status: 400 });
