@@ -190,10 +190,10 @@ const books = [
 ];
 
 /* -------------------------------------------------------------------------- */
-/* AUDIO ITEMS (unchanged)                                                    */
+/* FALLBACK AUDIO ITEMS (used if API fails)                                  */
 /* -------------------------------------------------------------------------- */
 
-const audioItems = [
+const fallbackAudioItems = [
   {
     title: "Finding Your Ministry",
     category: "Teaching",
@@ -328,6 +328,11 @@ export default function HomePage() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loadingBlogs, setLoadingBlogs] = useState(true);
 
+  // State for latest sermons
+  const [latestSermons, setLatestSermons] = useState<any[]>([]);
+  const [loadingSermons, setLoadingSermons] = useState(true);
+  const [sermonError, setSermonError] = useState(false);
+
   // Fetch blog feed
   useEffect(() => {
     const fetchBlogFeed = async () => {
@@ -348,7 +353,54 @@ export default function HomePage() {
     fetchBlogFeed();
   }, []);
 
-  // GSAP and Lenis setup (unchanged)
+  // Fetch latest sermons
+  useEffect(() => {
+    const fetchSermons = async () => {
+      try {
+        const res = await fetch("/api/sermon/latest?speaker=Pastor%20Ope%20Rowland");
+        if (!res.ok) throw new Error("Failed to fetch sermons");
+        const data = await res.json();
+        setLatestSermons(data);
+        setSermonError(false);
+      } catch (error) {
+        console.error("Error fetching latest sermons:", error);
+        setSermonError(true);
+        // fallback to static items
+        setLatestSermons(fallbackAudioItems);
+      } finally {
+        setLoadingSermons(false);
+      }
+    };
+    fetchSermons();
+  }, []);
+
+  // Build audio items to display: use API data if available, else fallback
+  const audioItems = sermonError ? fallbackAudioItems : latestSermons;
+
+  // Helper to format date for sermons (if API data has date)
+  const formatSermonDate = (dateStr?: string) => {
+    if (!dateStr) return "";
+    try {
+      return new Date(dateStr).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  // Helper to get thumbnail for sermon (Google Drive file ID)
+  const getSermonThumbnail = (thumbnailId?: string) => {
+    if (!thumbnailId) return "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=900&q=85";
+    return `https://drive.google.com/thumbnail?id=${thumbnailId}&sz=w500`;
+  };
+
+  /* ------------------------------------------------------------------------ */
+  /* GSAP and Lenis setup (unchanged)                                         */
+  /* ------------------------------------------------------------------------ */
+
   useEffect(() => {
     const page = pageRef.current;
     const horizontal = horizontalRef.current;
@@ -846,7 +898,7 @@ export default function HomePage() {
       </section>
 
       {/* ------------------------------------------------------------------ */}
-      {/* BLOG — NOW DYNAMIC                                                 */}
+      {/* BLOG — DYNAMIC (unchanged)                                        */}
       {/* ------------------------------------------------------------------ */}
 
       <section className="relative py-28 md:py-40">
@@ -929,7 +981,7 @@ export default function HomePage() {
       </section>
 
       {/* ------------------------------------------------------------------ */}
-      {/* AUDIO (unchanged)                                                  */}
+      {/* AUDIO — NOW DYNAMIC from latest sermons                           */}
       {/* ------------------------------------------------------------------ */}
 
       <section className="relative border-y border-white/10 bg-[#0a0a0a] py-24 md:py-32">
@@ -961,46 +1013,70 @@ export default function HomePage() {
             </div>
 
             <div className="space-y-3">
-              {audioItems.map((audio) => (
-                <Link
-                  href="/audio"
-                  key={audio.title}
-                  className="group glass flex items-center gap-4 rounded-[1.5rem] p-3 transition-all duration-500 hover:-translate-x-2 hover:border-[#c9a96e]/25 md:p-4"
-                >
-                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl">
-                    <Image
-                      src={audio.image}
-                      alt={audio.title}
-                      fill
-                      className="object-cover grayscale transition-all duration-700 group-hover:scale-110 group-hover:grayscale-0"
-                      unoptimized
-                    />
+              {loadingSermons ? (
+                <div className="flex justify-center py-8">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#c9a96e] border-t-transparent" />
+                </div>
+              ) : (
+                audioItems.map((audio, index) => {
+                  // Determine if it's API data or fallback
+                  const isApiData = !sermonError && audio._id;
+                  const title = isApiData ? audio.name : audio.title;
+                  const category = isApiData ? audio.series || "Sermon" : audio.category;
+                  const duration = isApiData ? audio.duration || "—" : audio.duration;
+                  const imageUrl = isApiData
+                    ? getSermonThumbnail(audio.thumbnail)
+                    : audio.image;
+                  const date = isApiData ? formatSermonDate(audio.date) : "";
 
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/35">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black">
-                        <Play size={11} fill="currentColor" />
+                  return (
+                    <Link
+                      href="/audio"
+                      key={isApiData ? audio._id : index}
+                      className="group glass flex items-center gap-4 rounded-[1.5rem] p-3 transition-all duration-500 hover:-translate-x-2 hover:border-[#c9a96e]/25 md:p-4"
+                    >
+                      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl">
+                        <Image
+                          src={imageUrl}
+                          alt={title}
+                          fill
+                          className="object-cover grayscale transition-all duration-700 group-hover:scale-110 group-hover:grayscale-0"
+                          unoptimized
+                        />
+
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/35">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black">
+                            <Play size={11} fill="currentColor" />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-1 flex items-center gap-2 text-[8px] uppercase tracking-[0.18em] text-[#c9a96e]">
-                      <span>{audio.category}</span>
-                      <span className="h-1 w-1 rounded-full bg-white/20" />
-                      <span className="text-white/25">{audio.duration}</span>
-                    </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex items-center gap-2 text-[8px] uppercase tracking-[0.18em] text-[#c9a96e]">
+                          <span>{category}</span>
+                          <span className="h-1 w-1 rounded-full bg-white/20" />
+                          <span className="text-white/25">{duration}</span>
+                          {isApiData && date && (
+                            <>
+                              <span className="h-1 w-1 rounded-full bg-white/20" />
+                              <span className="text-white/25">{date}</span>
+                            </>
+                          )}
+                        </div>
 
-                    <h3 className="truncate font-display text-2xl text-white">
-                      {audio.title}
-                    </h3>
-                  </div>
+                        <h3 className="truncate font-display text-2xl text-white">
+                          {title}
+                        </h3>
+                      </div>
 
-                  <ArrowRight
-                    size={17}
-                    className="mr-2 shrink-0 text-white/20 transition-all duration-500 group-hover:translate-x-1 group-hover:text-[#c9a96e]"
-                  />
-                </Link>
-              ))}
+                      <ArrowRight
+                        size={17}
+                        className="mr-2 shrink-0 text-white/20 transition-all duration-500 group-hover:translate-x-1 group-hover:text-[#c9a96e]"
+                      />
+                    </Link>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
