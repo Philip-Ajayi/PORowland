@@ -174,7 +174,6 @@ function MagneticPortrait() {
         />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/10" />
-        {/* Removed the overlay text with Ope Rowland, Find. Groom. Operate., Portrait placeholder */}
       </div>
     </motion.div>
   );
@@ -341,20 +340,18 @@ export default function AboutPage() {
   return (
     <div ref={pageRef} className="overflow-hidden">
       {/* ---------------------------------------------------------------- */}
-      {/* HERO                                                             */}
+      {/* HERO — pixel height, responsive portrait visible on all screens */}
       {/* ---------------------------------------------------------------- */}
 
-      <section className="about-hero relative min-h-[100svh] overflow-hidden bg-[#070707]">
+      <section className="about-hero relative min-h-[900px] overflow-hidden bg-[#070707]">
         <div className="absolute inset-0 mesh-bg" />
 
         <div className="about-hero-orb absolute -right-40 top-20 h-[600px] w-[600px] rounded-full bg-[#c9a96e]/10 blur-[140px]" />
 
         <div className="absolute bottom-0 left-0 right-0 h-72 bg-gradient-to-t from-[#070707] to-transparent" />
 
-        <div className="container-wide relative mx-auto grid min-h-[100svh] items-center gap-12 pb-20 pt-32 lg:grid-cols-[1fr_0.78fr] lg:gap-20">
+        <div className="container-wide relative mx-auto grid min-h-[900px] items-center gap-12 pb-20 pt-32 lg:grid-cols-[1fr_0.78fr] lg:gap-20">
           <div className="relative z-20">
-            {/* Removed the "Get to Know" line and the "Ope Rowland" eyebrow */}
-
             <h1 className="about-reveal display-xl mt-7 max-w-5xl text-white">
               About
               <br />
@@ -370,7 +367,7 @@ export default function AboutPage() {
               <Link
                 href="#philosophy"
                 className="magnetic-button inline-flex items-center gap-3 rounded-full bg-[#f2ede1] px-6 py-4 text-[9px] font-bold uppercase tracking-[0.18em]"
-                style={{ color: "#000" }} // ensure black text on light background
+                style={{ color: "#000" }}
               >
                 Discover the philosophy
                 <ArrowDown size={14} className="arrow-icon" />
@@ -378,7 +375,7 @@ export default function AboutPage() {
 
               <Link
                 href="/books"
-                className="magnetic-button inline-flex items-center gap-3 rounded-full bg-[#0a0a0a] px-6 py-4 text-[9px] font-bold uppercase tracking-[0.18em] text-white border border-white/15" // changed from glass to solid dark background for readability
+                className="magnetic-button inline-flex items-center gap-3 rounded-full bg-[#0a0a0a] px-6 py-4 text-[9px] font-bold uppercase tracking-[0.18em] text-white border border-white/15"
               >
                 Explore books
                 <ArrowUpRight size={14} className="arrow-icon" />
@@ -386,7 +383,8 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="about-portrait relative z-10 hidden h-[75vh] min-h-[580px] lg:block">
+          {/* Portrait — visible on all screens */}
+          <div className="about-portrait relative z-10 mx-auto h-[70vh] max-h-[600px] w-full max-w-[400px] lg:mx-0 lg:h-[75vh] lg:min-h-[580px] lg:max-h-none lg:w-full lg:max-w-none">
             <MagneticPortrait />
 
             <div className="absolute -left-12 top-1/4 glass rounded-2xl px-5 py-4">
@@ -400,7 +398,6 @@ export default function AboutPage() {
           </div>
 
           <div className="absolute bottom-8 left-0 right-0 flex items-center justify-center text-[8px] uppercase tracking-[0.24em] text-white/25">
-            {/* Removed "01 / 06" and "Ministry • Calling • Purpose" */}
             <motion.span
               animate={{ y: [0, 7, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -575,7 +572,6 @@ export default function AboutPage() {
                   />
 
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                  {/* Removed the "Faith in motion" and "Service before spotlight." overlay */}
                 </div>
               </div>
             </div>
@@ -601,7 +597,6 @@ export default function AboutPage() {
                       </div>
 
                       <div>
-                        {/* Removed the number span (01-06), keeping the line */}
                         <div className="mb-3 flex items-center gap-3">
                           <span className="h-px w-8 bg-white/10" />
                         </div>
@@ -764,7 +759,7 @@ export default function AboutPage() {
                 <Link
                   href="/books"
                   className="magnetic-button inline-flex items-center gap-3 rounded-full bg-[#f2ede1] px-7 py-4 text-[9px] font-bold uppercase tracking-[0.18em]"
-                  style={{ color: "#000" }} // ensure black text on light background
+                  style={{ color: "#000" }}
                 >
                   <BookOpen size={14} />
                   Explore Books
