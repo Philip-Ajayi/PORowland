@@ -214,20 +214,18 @@ export default function ContactPage() {
       className="overflow-hidden bg-[#070707] text-white"
     >
       {/* ================================================================ */}
-      {/* HERO                                                             */}
+      {/* HERO — pixel height, portrait visible on all screens             */}
       {/* ================================================================ */}
 
-      <section className="contact-hero relative min-h-[90svh] overflow-hidden">
+      <section className="contact-hero relative min-h-[900px] overflow-hidden">
         <div className="absolute inset-0 mesh-bg opacity-80" />
 
         <div className="contact-orb-one absolute -right-48 top-0 h-[600px] w-[600px] rounded-full bg-[#c9a96e]/10 blur-[150px]" />
 
         <div className="contact-orb-two absolute -left-64 bottom-0 h-[500px] w-[500px] rounded-full bg-white/[0.025] blur-[130px]" />
 
-        <div className="container-wide relative mx-auto grid min-h-[90svh] items-center gap-16 pb-20 pt-32 lg:grid-cols-[1.05fr_.75fr]">
+        <div className="container-wide relative mx-auto grid min-h-[900px] items-center gap-16 pb-20 pt-32 lg:grid-cols-[1.05fr_.75fr]">
           <div className="relative z-10">
-            {/* Removed the "Contact / Connect" line and "Get in Touch" eyebrow */}
-
             <h1 className="contact-reveal display-xl mt-7 max-w-5xl">
               Let&apos;s start a
               <br />
@@ -243,23 +241,23 @@ export default function ContactPage() {
             <a
               href="#contact-form"
               className="contact-reveal magnetic-button mt-9 inline-flex items-center gap-3 rounded-full bg-[#f2ede1] px-6 py-4 text-[9px] font-bold uppercase tracking-[0.18em]"
-              style={{ color: "#000" }} // ensure black text on light background
+              style={{ color: "#000" }}
             >
               Send a message
               <ArrowDown size={14} />
             </a>
           </div>
 
-          {/* Portrait / visual */}
-          <div className="relative hidden min-h-[560px] lg:block">
-            <div className="absolute right-0 top-1/2 h-[500px] w-[400px] -translate-y-1/2 rotate-3 rounded-[2rem] border border-white/10 bg-white/[0.02] p-3 backdrop-blur-xl">
+          {/* Portrait / visual — now visible on all screens */}
+          <div className="relative block min-h-[400px] sm:min-h-[450px] lg:min-h-[560px]">
+            <div className="mx-auto relative h-[400px] w-[300px] rotate-3 rounded-[2rem] border border-white/10 bg-white/[0.02] p-3 backdrop-blur-xl sm:h-[450px] sm:w-[350px] lg:absolute lg:right-0 lg:top-1/2 lg:-translate-y-1/2 lg:mx-0 lg:h-[500px] lg:w-[400px]">
               <div className="contact-portrait relative h-full overflow-hidden rounded-[1.5rem]">
                 <Image
                   src="/Ope.jpg"
                   alt="Ope Rowland"
                   fill
                   priority
-                  sizes="400px"
+                  sizes="(max-width: 640px) 90vw, 400px"
                   className="object-cover object-top"
                 />
 
@@ -281,15 +279,9 @@ export default function ContactPage() {
                 </div>
               </div>
             </div>
-
-            {/* Removed the "Open to meaningful conversations" floating card */}
           </div>
         </div>
       </section>
-
-      {/* ================================================================ */}
-      {/* MARQUEE (REMOVED)                                                */}
-      {/* ================================================================ */}
 
       {/* ================================================================ */}
       {/* FORM + DETAILS                                                    */}
@@ -441,7 +433,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     className="magnetic-button inline-flex items-center gap-3 rounded-full bg-[#f2ede1] px-7 py-4 text-[9px] font-bold uppercase tracking-[0.18em] transition-transform hover:scale-[1.03]"
-                    style={{ color: "#000" }} // ensure black text on light background
+                    style={{ color: "#000" }}
                   >
                     Send Message
                     <Send size={13} />
@@ -454,8 +446,6 @@ export default function ContactPage() {
           {/* Contact information */}
           <aside className="lg:pt-16">
             <div className="contact-card glass rounded-[2rem] p-7 md:p-8">
-              {/* Removed the "Pastor Ope Rowland" eyebrow line */}
-
               <h3 className="mt-6 font-display text-3xl">
                 Let&apos;s connect.
               </h3>
@@ -679,7 +669,7 @@ export default function ContactPage() {
                 <Link
                   href="/books"
                   className="magnetic-button inline-flex items-center gap-3 rounded-full bg-[#f2ede1] px-7 py-4 text-[9px] font-bold uppercase tracking-[0.18em]"
-                  style={{ color: "#000" }} // ensure black text on light background
+                  style={{ color: "#000" }}
                 >
                   Browse Books
                   <BookOpen size={14} />
