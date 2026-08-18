@@ -6,12 +6,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const navigation = [
-  { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Books", href: "/books" },
   { label: "Audio", href: "/audio" },
   { label: "Blog", href: "/blog" },
-  { label: "Contact", href: "/contact" },
 ];
 
 export default function Navbar() {

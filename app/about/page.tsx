@@ -15,7 +15,7 @@ import {
   Leaf,
   PenLine,
   Quote,
-  Sparkles,
+  Target,
   Users,
 } from "lucide-react";
 import Image from "next/image";
@@ -48,7 +48,7 @@ const beliefs = [
   },
   {
     number: "04",
-    icon: Sparkles,
+    icon: Target,
     title: "The Cross Changes Everything",
     description:
       "Understanding how the Cross episode affects us is fundamental to Christian life. It's the foundation of our redemption, authority, and relationship with God.",
@@ -742,7 +742,7 @@ export default function AboutPage() {
 
             <div className="relative z-10">
               <div className="about-reveal mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-[#c9a96e]/30 bg-[#c9a96e]/10">
-                <Sparkles size={18} className="text-[#c9a96e]" />
+                <Target size={18} className="text-[#c9a96e]" />
               </div>
 
               <p className="eyebrow mt-7">Start Your Journey Today</p>

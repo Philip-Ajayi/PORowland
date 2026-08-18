@@ -18,6 +18,7 @@ import {
   Quote,
   Send,
 } from "lucide-react";
+import { FaTelegram } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -492,6 +493,14 @@ export default function ContactPage() {
                   description="Listen to talks and read articles"
                   href="/audio"
                 />
+
+                <ContactLink
+                  icon={<FaTelegram size={16} />}
+                  label="Telegram"
+                  description="Join the Thrive Telegram community"
+                  href="https://t.me/thrive_operowland2"
+                  external
+                />
               </div>
             </div>
 
@@ -739,15 +748,19 @@ function ContactLink({
   label,
   description,
   href,
+  external = false,
 }: {
   icon: React.ReactNode;
   label: string;
   description: string;
   href: string;
+  external?: boolean;
 }) {
   return (
     <a
       href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer" : undefined}
       className="group flex items-center gap-4 rounded-2xl border border-white/5 bg-white/[0.015] p-4 transition-all duration-300 hover:-translate-y-1 hover:border-white/15 hover:bg-white/[0.04]"
     >
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#c9a96e]/10 text-[#ead9ae] transition-transform duration-300 group-hover:scale-110">

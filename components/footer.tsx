@@ -2,7 +2,15 @@
 
 import { ArrowUpRight, Mail } from "lucide-react";
 import Link from "next/link";
-import { FaFacebook, FaYoutube, FaInstagram } from "react-icons/fa";
+import {
+  FaFacebookF,
+  FaTwitter,
+  FaBloggerB,
+  FaWordpress,
+  FaSoundcloud,
+  FaSpotify,
+  FaTelegram,
+} from "react-icons/fa";
 
 const footerLinks = [
   { label: "About", href: "/about" },
@@ -10,6 +18,44 @@ const footerLinks = [
   { label: "Audio", href: "/audio" },
   { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
+];
+
+const socialLinks = [
+  {
+    label: "Facebook",
+    href: "https://facebook.com/operowland",
+    icon: FaFacebookF,
+  },
+  {
+    label: "Twitter",
+    href: "https://twitter.com/operowland",
+    icon: FaTwitter,
+  },
+  {
+    label: "Blogger",
+    href: "http://operowland.blogspot.com",
+    icon: FaBloggerB,
+  },
+  {
+    label: "WordPress",
+    href: "https://operowland.wordpress.com",
+    icon: FaWordpress,
+  },
+  {
+    label: "SoundCloud",
+    href: "https://soundcloud.com/operowland",
+    icon: FaSoundcloud,
+  },
+  {
+    label: "Spotify",
+    href: "https://open.spotify.com/show/1gC7m8RniOjRX1IiXGbBKu",
+    icon: FaSpotify,
+  },
+  {
+    label: "Telegram",
+    href: "https://t.me/thrive_operowland2",
+    icon: FaTelegram,
+  },
 ];
 
 export default function Footer() {
@@ -79,30 +125,23 @@ export default function Footer() {
                 <span>Get in touch</span>
               </a>
 
-              <div className="flex gap-2">
-                <a
-                  href="#"
-                  aria-label="Instagram"
-                  className="glass flex h-11 w-11 items-center justify-center rounded-full text-white/45 transition-all hover:-translate-y-1 hover:text-[#c9a96e]"
-                >
-                  <FaInstagram size={16} />
-                </a>
+              <div className="flex flex-wrap gap-2">
+                {socialLinks.map((social) => {
+                  const Icon = social.icon;
 
-                <a
-                  href="#"
-                  aria-label="Facebook"
-                  className="glass flex h-11 w-11 items-center justify-center rounded-full text-white/45 transition-all hover:-translate-y-1 hover:text-[#c9a96e]"
-                >
-                  <FaFacebook size={14} />
-                </a>
-
-                <a
-                  href="#"
-                  aria-label="YouTube"
-                  className="glass flex h-11 w-11 items-center justify-center rounded-full text-white/45 transition-all hover:-translate-y-1 hover:text-[#c9a96e]"
-                >
-                  <FaYoutube size={17} />
-                </a>
+                  return (
+                    <a
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={social.label}
+                      className="glass flex h-11 w-11 items-center justify-center rounded-full text-white/45 transition-all hover:-translate-y-1 hover:text-[#c9a96e]"
+                    >
+                      <Icon size={16} />
+                    </a>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -112,7 +151,6 @@ export default function Footer() {
           <div className="flex flex-col justify-between gap-4 text-[9px] uppercase tracking-[0.17em] text-white/25 sm:flex-row">
             <span>© {new Date().getFullYear()} Ope Rowland</span>
             <span>Find • Groom • Operate</span>
-            <span>MIV Word House</span>
           </div>
         </div>
       </div>

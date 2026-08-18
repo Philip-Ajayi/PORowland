@@ -14,7 +14,7 @@ import {
   Check,
   ExternalLink,
   Library,
-  Sparkles,
+  Quote,
   X,
 } from "lucide-react";
 import { FaAmazon } from "react-icons/fa";
@@ -577,10 +577,6 @@ export default function BooksPage() {
       </section>
 
       {/* ================================================================== */}
-      {/* HORIZONTAL TYPOGRAPHIC SECTION - REMOVED                            */}
-      {/* ================================================================== */}
-
-      {/* ================================================================== */}
       {/* FULL BOOK GRID                                                      */}
       {/* ================================================================== */}
 
@@ -746,7 +742,7 @@ export default function BooksPage() {
         <div className="absolute inset-0 mesh-gold opacity-60" />
 
         <div className="container-standard relative mx-auto text-center">
-          <Sparkles
+          <Quote
             size={25}
             strokeWidth={1}
             className="mx-auto text-[#c9a96e]"
