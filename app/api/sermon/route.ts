@@ -1,23 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbConnect } from '@/lib/dbConnect';
-import { Item } from '@/lib/models/Sermon';
+import { Sermon } from '@/lib/models/Sermon';
 
+// Optional but useful if you deploy to edge runtime
 export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest) {
   try {
     await dbConnect();
 
-    const category = req.nextUrl.searchParams.get('category');
-    
-    // Build filter dynamically if category query param exists
-    const query = category ? { category } : {};
+    const speaker =
+      req.nextUrl.searchParams.get('speaker') ?? 'Pastor Ope Rowland';
 
-    const items = await Item.find(query)
-      .sort({ createdAt: -1 })
+    const sermons = await Sermon.find({ speaker })
+      .sort({ date: -1 })
       .lean();
 
-    return NextResponse.json(items);
+    return NextResponse.json(sermons);
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message },
