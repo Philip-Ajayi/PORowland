@@ -602,7 +602,7 @@ export default function AudioPage() {
       </section>
 
       {/* ================================================================== */}
-      {/* AUDIO LIBRARY (with lazy loading and scrollable filter pills)      */}
+      {/* AUDIO LIBRARY (with responsive grid, lazy loading, filters)        */}
       {/* ================================================================== */}
 
       <section id="audio-library" className="relative py-24 md:py-36">
@@ -696,10 +696,13 @@ export default function AudioPage() {
             </div>
           )}
 
-          {/* Audio cards with lazy loading */}
+          {/* Audio cards grid — 1 col mobile, 2 cols tablet, 3 cols desktop */}
           {!loading && !error && (
             <>
-              <motion.div layout className="mt-14 grid gap-5">
+              <motion.div
+                layout
+                className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+              >
                 <AnimatePresence mode="popLayout">
                   {displayedSermons.map((sermon, index) => {
                     const active = currentAudioId === sermon._id;
@@ -717,148 +720,146 @@ export default function AudioPage() {
                           duration: 0.45,
                           delay: index * 0.035,
                         }}
-                        className={`audio-card group relative overflow-hidden rounded-[1.75rem] border transition-all duration-500 ${
+                        className={`audio-card group relative flex flex-col overflow-hidden rounded-[1.75rem] border transition-all duration-500 ${
                           active
                             ? "border-[#c9a96e]/30 bg-[#c9a96e]/[0.045]"
                             : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.035]"
                         }`}
                       >
-                        <div className="grid gap-0 lg:grid-cols-[250px_1fr_auto]">
-                          {/* Thumbnail */}
-                          <div className="relative aspect-[1.4/1] overflow-hidden lg:aspect-auto lg:min-h-[210px]">
-                            <Image
-                              src={thumbnailUrl}
-                              alt={sermon.name}
-                              fill
-                              unoptimized
-                              sizes="250px"
-                              className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/30" />
+                        {/* Thumbnail */}
+                        <div className="relative aspect-[16/9] overflow-hidden">
+                          <Image
+                            src={thumbnailUrl}
+                            alt={sermon.name}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
-                            <button
-                              type="button"
-                              aria-label={
-                                active && isPlaying
-                                  ? `Pause ${sermon.name}`
-                                  : `Play ${sermon.name}`
-                              }
-                              onClick={() => playAudio(sermon)}
-                              className="absolute left-5 top-1/2 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white text-black shadow-2xl transition-all duration-300 hover:scale-110"
-                            >
-                              {active && isPlaying ? (
-                                <Pause size={17} />
-                              ) : (
-                                <Play size={17} fill="currentColor" />
-                              )}
-                            </button>
-
-                            {active && isPlaying && (
-                              <div className="absolute bottom-4 left-5 flex items-end gap-1">
-                                {[12, 20, 15, 24, 17].map((height, i) => (
-                                  <motion.span
-                                    key={i}
-                                    animate={{
-                                      height: [
-                                        height / 2,
-                                        height,
-                                        height / 1.5,
-                                        height,
-                                      ],
-                                    }}
-                                    transition={{
-                                      duration: 0.7,
-                                      repeat: Infinity,
-                                      delay: i * 0.1,
-                                    }}
-                                    className="w-1 rounded-full bg-white"
-                                  />
-                                ))}
-                              </div>
+                          <button
+                            type="button"
+                            aria-label={
+                              active && isPlaying
+                                ? `Pause ${sermon.name}`
+                                : `Play ${sermon.name}`
+                            }
+                            onClick={() => playAudio(sermon)}
+                            className="absolute left-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-black shadow-xl transition-all duration-300 hover:scale-110"
+                          >
+                            {active && isPlaying ? (
+                              <Pause size={16} />
+                            ) : (
+                              <Play size={16} fill="currentColor" />
                             )}
-                          </div>
+                          </button>
 
-                          {/* Details */}
-                          <div className="flex flex-col justify-center p-6 md:p-8">
-                            <div className="flex flex-wrap items-center gap-3 text-[8px] uppercase tracking-[0.16em]">
-                              <span className="text-[#ead9ae]">
-                                {sermon.series || "Sermon"}
-                              </span>
-                              <span className="h-1 w-1 rounded-full bg-white/15" />
-                              <span className="text-white/25">
-                                {sermon.speaker}
-                              </span>
-                            </div>
-
-                            <h3 className="mt-4 font-display text-2xl leading-tight text-white md:text-3xl">
-                              {sermon.name}
-                            </h3>
-
-                            <div className="mt-5 flex flex-wrap items-center gap-5 text-[8px] uppercase tracking-[0.15em] text-white/25">
-                              <span className="flex items-center gap-2">
-                                <CalendarDays size={12} />
-                                {formatDate(sermon.date)}
-                              </span>
-                              <span className="flex items-center gap-2">
-                                <Headphones size={12} />
-                                Audio
-                              </span>
-                            </div>
-
-                            {/* Progress */}
-                            {active && (
-                              <div className="mt-6 flex items-center gap-3">
-                                <span className="text-[8px] text-white/25">
-                                  {Math.round(progress)}%
-                                </span>
-                                <input
-                                  aria-label="Audio progress"
-                                  type="range"
-                                  min="0"
-                                  max="100"
-                                  step="0.1"
-                                  value={progress}
-                                  onChange={(event) =>
-                                    seekAudio(Number(event.target.value))
-                                  }
-                                  className="audio-range h-1 w-full cursor-pointer appearance-none rounded-full bg-white/10"
+                          {active && isPlaying && (
+                            <div className="absolute bottom-4 left-4 flex items-end gap-1">
+                              {[10, 16, 12, 20, 14].map((height, i) => (
+                                <motion.span
+                                  key={i}
+                                  animate={{
+                                    height: [
+                                      height / 2,
+                                      height,
+                                      height / 1.5,
+                                      height,
+                                    ],
+                                  }}
+                                  transition={{
+                                    duration: 0.7,
+                                    repeat: Infinity,
+                                    delay: i * 0.1,
+                                  }}
+                                  className="w-1 rounded-full bg-white"
                                 />
-                                <Volume2
-                                  size={13}
-                                  className="shrink-0 text-white/25"
-                                />
-                              </div>
-                            )}
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Details */}
+                        <div className="flex flex-1 flex-col p-5 md:p-6">
+                          <div className="flex flex-wrap items-center gap-2 text-[8px] uppercase tracking-[0.14em]">
+                            <span className="text-[#ead9ae]">
+                              {sermon.series || "Sermon"}
+                            </span>
+                            <span className="h-1 w-1 rounded-full bg-white/15" />
+                            <span className="text-white/25">
+                              {sermon.speaker}
+                            </span>
                           </div>
 
-                          {/* Actions */}
-                          <div className="flex items-center gap-2 border-t border-white/10 p-6 lg:border-l lg:border-t-0 lg:p-8">
-                            <button
-                              type="button"
-                              onClick={() => playAudio(sermon)}
-                              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-white/50 transition-all hover:border-white/30 hover:bg-white hover:text-black"
-                              title="Play on site"
+                          <h3 className="mt-3 font-display text-xl leading-tight text-white md:text-2xl">
+                            {sermon.name}
+                          </h3>
+
+                          <div className="mt-4 flex flex-wrap items-center gap-4 text-[8px] uppercase tracking-[0.14em] text-white/25">
+                            <span className="flex items-center gap-1.5">
+                              <CalendarDays size={11} />
+                              {formatDate(sermon.date)}
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                              <Headphones size={11} />
+                              Audio
+                            </span>
+                          </div>
+
+                          {/* Progress */}
+                          {active && (
+                            <div className="mt-4 flex items-center gap-2">
+                              <span className="text-[8px] text-white/25">
+                                {Math.round(progress)}%
+                              </span>
+                              <input
+                                aria-label="Audio progress"
+                                type="range"
+                                min="0"
+                                max="100"
+                                step="0.1"
+                                value={progress}
+                                onChange={(event) =>
+                                  seekAudio(Number(event.target.value))
+                                }
+                                className="audio-range h-1 w-full cursor-pointer appearance-none rounded-full bg-white/10"
+                              />
+                              <Volume2
+                                size={12}
+                                className="shrink-0 text-white/25"
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 border-t border-white/10 p-4 md:p-5">
+                          <button
+                            type="button"
+                            onClick={() => playAudio(sermon)}
+                            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white/50 transition-all hover:border-white/30 hover:bg-white hover:text-black"
+                            title="Play on site"
+                          >
+                            {active && isPlaying ? (
+                              <Pause size={14} />
+                            ) : (
+                              <Play size={14} fill="currentColor" />
+                            )}
+                          </button>
+
+                          {audioUrl && (
+                            <a
+                              href={`https://drive.google.com/uc?export=download&id=${sermon.audioFile}`}
+                              download
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white/50 transition-all hover:border-[#c9a96e]/40 hover:bg-[#c9a96e]/10 hover:text-[#ead9ae]"
+                              title="Download audio"
                             >
-                              {active && isPlaying ? (
-                                <Pause size={14} />
-                              ) : (
-                                <Play size={14} fill="currentColor" />
-                              )}
-                            </button>
-
-                            {audioUrl && (
-                              <a
-                                href={`https://drive.google.com/uc?export=download&id=${sermon.audioFile}`}
-                                download
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-white/50 transition-all hover:border-[#c9a96e]/40 hover:bg-[#c9a96e]/10 hover:text-[#ead9ae]"
-                                title="Download audio"
-                              >
-                                <Download size={14} />
-                              </a>
-                            )}
-                          </div>
+                              <Download size={14} />
+                            </a>
+                          )}
                         </div>
                       </motion.article>
                     );
