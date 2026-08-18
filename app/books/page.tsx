@@ -343,20 +343,18 @@ export default function BooksPage() {
   return (
     <div ref={pageRef} className="overflow-hidden bg-[#070707] text-white">
       {/* ================================================================== */}
-      {/* HERO                                                               */}
+      {/* HERO — pixel height, responsive book composition visible all screens */}
       {/* ================================================================== */}
 
-      <section className="books-hero relative min-h-[100svh] overflow-hidden">
+      <section className="books-hero relative min-h-[900px] overflow-hidden">
         <div className="absolute inset-0 mesh-bg opacity-90" />
 
         <div className="books-hero-orb absolute -right-48 top-10 h-[650px] w-[650px] rounded-full bg-[#c9a96e]/10 blur-[150px]" />
 
         <div className="absolute left-[-15%] top-[40%] h-[400px] w-[400px] rounded-full bg-[#9f7b3e]/5 blur-[120px]" />
 
-        <div className="container-wide relative mx-auto grid min-h-[100svh] items-center gap-14 pb-20 pt-32 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
+        <div className="container-wide relative mx-auto grid min-h-[900px] items-center gap-14 pb-20 pt-32 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
           <div className="relative z-10">
-            {/* Removed "Published Works" line and "Ope Rowland / Books" eyebrow */}
-
             <Reveal>
               <h1 className="display-xl mt-7 max-w-5xl text-white">
                 Books that
@@ -376,7 +374,7 @@ export default function BooksPage() {
               <Link
                 href="#collection"
                 className="magnetic-button inline-flex items-center gap-3 rounded-full bg-[#f2ede1] px-6 py-4 text-[9px] font-bold uppercase tracking-[0.18em]"
-                style={{ color: "#000" }} // ensure black text on light background
+                style={{ color: "#000" }}
               >
                 Explore the collection
                 <ArrowDown size={14} />
@@ -417,15 +415,15 @@ export default function BooksPage() {
             </Reveal>
           </div>
 
-          {/* Hero book composition */}
-          <div className="relative hidden min-h-[650px] items-center justify-center lg:flex">
+          {/* Hero book composition — visible on all screens */}
+          <div className="relative flex min-h-[450px] items-center justify-center lg:min-h-[650px]">
             <div className="absolute h-[480px] w-[480px] rounded-full border border-[#c9a96e]/10" />
             <div className="absolute h-[350px] w-[350px] rounded-full border border-[#c9a96e]/10" />
 
-            <div className="books-hero-cover group relative w-[280px] rotate-6">
+            <div className="books-hero-cover group relative w-[220px] rotate-6 sm:w-[280px]">
               <BookCover book={books[0]} priority className="shadow-[0_50px_100px_rgba(0,0,0,.55)]" />
 
-              <div className="absolute -bottom-8 -left-16 glass rounded-2xl p-5 backdrop-blur-2xl">
+              <div className="absolute -bottom-8 -left-10 glass rounded-2xl p-5 backdrop-blur-2xl sm:-left-16">
                 <p className="text-[8px] uppercase tracking-[0.2em] text-white/30">
                   Featured
                 </p>
@@ -434,14 +432,13 @@ export default function BooksPage() {
                 </p>
               </div>
 
-              <div className="absolute -right-20 top-16 flex h-16 w-16 items-center justify-center rounded-full border border-[#c9a96e]/30 bg-[#c9a96e]/10 backdrop-blur-xl">
+              <div className="absolute -right-12 top-16 flex h-16 w-16 items-center justify-center rounded-full border border-[#c9a96e]/30 bg-[#c9a96e]/10 backdrop-blur-xl sm:-right-20">
                 <BookOpen size={22} className="text-[#ead9ae]" />
               </div>
             </div>
           </div>
 
           <div className="absolute bottom-8 left-0 right-0 flex items-center justify-between text-[8px] uppercase tracking-[0.24em] text-white/20">
-            {/* Removed "01 / 07" */}
             <span className="hidden md:block">
               Read • Reflect • Become
             </span>
@@ -626,7 +623,6 @@ export default function BooksPage() {
                   </div>
 
                   <div className="mt-7">
-                    {/* Removed the number span, kept the line and author name */}
                     <div className="flex items-center gap-3">
                       <span className="h-px w-7 bg-white/10" />
                       <span className="text-[8px] uppercase tracking-[0.18em] text-white/25">
@@ -666,7 +662,7 @@ export default function BooksPage() {
                     rel="noreferrer"
                     onClick={(event) => event.stopPropagation()}
                     className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-white px-4 py-3 text-[8px] font-bold uppercase tracking-[0.14em]"
-                    style={{ color: "#000" }} // ensure black text on white background
+                    style={{ color: "#000" }}
                   >
                     <FaAmazon size={12} />
                     Amazon
@@ -724,7 +720,7 @@ export default function BooksPage() {
                 target="_blank"
                 rel="noreferrer"
                 className="magnetic-button inline-flex shrink-0 items-center justify-center gap-3 rounded-full bg-[#f2ede1] px-7 py-4 text-[9px] font-bold uppercase tracking-[0.18em]"
-                style={{ color: "#000" }} // ensure black text on light background
+                style={{ color: "#000" }}
               >
                 <FaAmazon size={16} />
                 Visit Amazon Profile
@@ -798,7 +794,7 @@ export default function BooksPage() {
                   <Link
                     href="/contact"
                     className="magnetic-button inline-flex items-center gap-3 rounded-full bg-[#f2ede1] px-7 py-4 text-[9px] font-bold uppercase tracking-[0.18em]"
-                    style={{ color: "#000" }} // ensure black text on light background
+                    style={{ color: "#000" }}
                   >
                     Connect for More Information
                     <ArrowRight size={14} />
@@ -918,7 +914,7 @@ export default function BooksPage() {
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center gap-3 rounded-full bg-white px-6 py-4 text-[9px] font-bold uppercase tracking-[0.16em]"
-                      style={{ color: "#000" }} // ensure black text on white background
+                      style={{ color: "#000" }}
                     >
                       <FaAmazon size={14} />
                       Buy on Amazon
