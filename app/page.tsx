@@ -644,15 +644,15 @@ export default function HomePage() {
       </section>
 
       {/* ------------------------------------------------------------------ */}
-      {/* SCROLL STORY / HORIZONTAL (unchanged)                              */}
+      {/* SCROLL STORY / HORIZONTAL (pixel-based height)                     */}
       {/* ------------------------------------------------------------------ */}
 
-      <section className="horizontal-story relative h-screen overflow-hidden border-y border-white/10 bg-[#090909]">
+      <section className="horizontal-story relative h-[900px] overflow-hidden border-y border-white/10 bg-[#090909]">
         <div
           ref={horizontalRef}
           className="horizontal-track flex h-full items-center gap-5 px-[6vw]"
         >
-          <article className="story-panel relative flex h-[72vh] flex-col justify-between overflow-hidden rounded-[2rem] border border-white/10 bg-[#111] p-8 md:p-12">
+          <article className="story-panel relative flex h-[620px] flex-col justify-between overflow-hidden rounded-[2rem] border border-white/10 bg-[#111] p-8 md:p-12">
             <div className="absolute inset-0 opacity-30">
               <ParallaxImage
                 src="https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1600&q=85"
@@ -672,7 +672,7 @@ export default function HomePage() {
             </div>
           </article>
 
-          <article className="story-panel flex h-[72vh] flex-col justify-between rounded-[2rem] border border-white/10 bg-[#15120e] p-8 md:p-12">
+          <article className="story-panel flex h-[620px] flex-col justify-between rounded-[2rem] border border-white/10 bg-[#15120e] p-8 md:p-12">
             <div>
               <span className="eyebrow">02 — Groom</span>
             </div>
@@ -689,7 +689,7 @@ export default function HomePage() {
             </div>
           </article>
 
-          <article className="story-panel relative flex h-[72vh] flex-col justify-between overflow-hidden rounded-[2rem] border border-[#c9a96e]/20 bg-[#c9a96e] p-8 md:p-12">
+          <article className="story-panel relative flex h-[620px] flex-col justify-between overflow-hidden rounded-[2rem] border border-[#c9a96e]/20 bg-[#c9a96e] p-8 md:p-12">
             <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-white/30 blur-[100px]" />
 
             <div className="relative">
@@ -846,7 +846,7 @@ export default function HomePage() {
       </section>
 
       {/* ------------------------------------------------------------------ */}
-      {/* BLOG — NOW DYNAMIC                                                 */}
+      {/* BLOG — grid 1-2-3 columns                                         */}
       {/* ------------------------------------------------------------------ */}
 
       <section className="relative py-28 md:py-40">
@@ -875,7 +875,7 @@ export default function HomePage() {
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#c9a96e] border-t-transparent" />
             </div>
           ) : (
-            <div className="mt-16 grid gap-5 lg:grid-cols-3">
+            <div className="mt-16 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {blogPosts.length > 0 ? (
                 blogPosts.map((post, index) => (
                   <Link
