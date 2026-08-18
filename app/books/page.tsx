@@ -840,34 +840,20 @@ export default function BooksPage() {
             />
 
             <motion.div
-              role="dialog"
-              aria-modal="true"
-              aria-label={selectedBook.title}
-              className="relative z-10 max-h-[92svh] w-full max-w-5xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#101010] shadow-2xl"
-              initial={{
-                opacity: 0,
-                y: 35,
-                scale: 0.96,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-                scale: 1,
-              }}
-              exit={{
-                opacity: 0,
-                y: 20,
-                scale: 0.97,
-              }}
-              transition={{
-                duration: 0.45,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            >
+                role="dialog"
+                aria-modal="true"
+                aria-label={selectedBook.title}
+                className="relative z-10 max-h-[calc(100vh-2rem)] w-full max-w-5xl overflow-y-auto overscroll-contain rounded-[2rem] border border-white/10 bg-[#101010] shadow-2xl md:max-h-[92svh]"
+                style={{ WebkitOverflowScrolling: "touch" }}
+                initial={{ opacity: 0, y: 35, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 20, scale: 0.97 }}
+                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              >
               <button
                 onClick={() => setSelectedBook(null)}
                 aria-label="Close"
-                className="absolute right-5 top-5 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/30 text-white/60 backdrop-blur-xl transition-colors hover:text-white"
+                className="sticky right-5 top-5 z-20 ml-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/30 text-white/60 backdrop-blur-xl transition-colors hover:text-white"
               >
                 <X size={17} />
               </button>
