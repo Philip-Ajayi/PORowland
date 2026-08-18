@@ -409,14 +409,14 @@ export default function AudioPage() {
       <audio ref={audioRef} preload="metadata" />
 
       {/* ================================================================== */}
-      {/* HERO                                                               */}
+      {/* HERO — pixel height, artwork visible on all screens                */}
       {/* ================================================================== */}
 
-      <section className="audio-hero relative min-h-[92svh] overflow-hidden">
+      <section className="audio-hero relative min-h-[900px] overflow-hidden">
         <div className="absolute inset-0 mesh-bg opacity-80" />
         <div className="audio-hero-orb absolute -right-48 top-10 h-[620px] w-[620px] rounded-full bg-[#c9a96e]/10 blur-[150px]" />
 
-        <div className="container-wide relative mx-auto grid min-h-[92svh] items-center gap-14 pb-20 pt-32 lg:grid-cols-[1fr_0.85fr]">
+        <div className="container-wide relative mx-auto grid min-h-[900px] items-center gap-14 pb-20 pt-32 lg:grid-cols-[1fr_0.85fr]">
           <div className="relative z-10">
             <h1 className="audio-reveal display-xl mt-7 max-w-5xl">
               Listen.
@@ -456,18 +456,18 @@ export default function AudioPage() {
             </div>
           </div>
 
-          {/* Hero artwork */}
-          <div className="relative hidden min-h-[570px] lg:block">
+          {/* Hero artwork — now visible on all screens */}
+          <div className="relative block min-h-[400px] sm:min-h-[450px] lg:min-h-[570px]">
             {sermons.length > 0 && (
-              <div className="absolute right-0 top-1/2 h-[480px] w-[390px] -translate-y-1/2 rotate-3 rounded-[2rem] border border-white/10 bg-white/[0.02] p-3 backdrop-blur-xl">
-                <div className="audio-hero-image group relative h-full overflow-hidden rounded-[1.5rem]">
+              <div className="audio-hero-image mx-auto relative h-[380px] w-[280px] rotate-3 rounded-[2rem] border border-white/10 bg-white/[0.02] p-3 backdrop-blur-xl sm:h-[450px] sm:w-[350px] lg:absolute lg:right-0 lg:top-1/2 lg:-translate-y-1/2 lg:mx-0 lg:h-[480px] lg:w-[390px]">
+                <div className="relative h-full overflow-hidden rounded-[1.5rem]">
                   <Image
                     src={getThumbnailUrl(sermons[0].thumbnail)}
                     alt={sermons[0].name}
                     fill
                     priority
                     unoptimized
-                    sizes="390px"
+                    sizes="(max-width: 640px) 90vw, 390px"
                     className="object-cover transition-transform duration-[1.2s] group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
