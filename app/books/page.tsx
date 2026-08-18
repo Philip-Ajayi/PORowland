@@ -823,58 +823,123 @@ export default function BooksPage() {
       {/* ================================================================== */}
 
       <AnimatePresence>
-  {selectedBook && (
-    <motion.div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-8"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <motion.button
-        aria-label="Close book details"
-        className="absolute inset-0 cursor-default bg-black/80 backdrop-blur-xl"
-        onClick={() => setSelectedBook(null)}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      />
-
-      <motion.div
-        role="dialog"
-        aria-modal="true"
-        aria-label={selectedBook.title}
-        data-lenis-prevent
-        className="relative z-10 w-full max-w-5xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#101010] shadow-2xl
-                   max-sm:h-[100dvh] max-sm:max-h-none max-sm:rounded-none max-sm:border-0
-                   [touch-action:pan-y]"
-        initial={{ opacity: 0, y: 35, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 20, scale: 0.97 }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <button
-          onClick={() => setSelectedBook(null)}
-          aria-label="Close"
-          className="absolute right-5 top-5 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/30 text-white/60 backdrop-blur-xl transition-colors hover:text-white"
-        >
-          <X size={17} />
-        </button>
-
-        <div className="grid gap-10 p-8 md:grid-cols-[300px_1fr] md:p-10">
-          <div>
-            <BookCover
-              book={selectedBook}
-              className="mx-auto max-w-[300px]"
+        {selectedBook && (
+          <motion.div
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.button
+              aria-label="Close book details"
+              className="absolute inset-0 cursor-default bg-black/80 backdrop-blur-xl"
+              onClick={() => setSelectedBook(null)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             />
-          </div>
 
-          <div className="flex flex-col justify-center">
-            {/* ... rest of the content ... */}
-          </div>
-        </div>
-      </motion.div>
-    </motion.div>
-  )}
-</AnimatePresence>    </div>
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-label={selectedBook.title}
+              className="relative z-10 max-h-[92svh] w-full max-w-5xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#101010] shadow-2xl"
+              initial={{
+                opacity: 0,
+                y: 35,
+                scale: 0.96,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+              }}
+              exit={{
+                opacity: 0,
+                y: 20,
+                scale: 0.97,
+              }}
+              transition={{
+                duration: 0.45,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <button
+                onClick={() => setSelectedBook(null)}
+                aria-label="Close"
+                className="absolute right-5 top-5 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/30 text-white/60 backdrop-blur-xl transition-colors hover:text-white"
+              >
+                <X size={17} />
+              </button>
+
+              <div className="grid gap-10 p-6 md:grid-cols-[300px_1fr] md:p-10">
+                <div>
+                  <BookCover
+                    book={selectedBook}
+                    className="mx-auto max-w-[300px]"
+                  />
+                </div>
+
+                <div className="flex flex-col justify-center">
+                  <p className="text-[8px] font-bold uppercase tracking-[0.22em] text-[#c9a96e]">
+                    {selectedBook.number} / {books.length} · Published Work
+                  </p>
+
+                  <h2 className="mt-4 font-display text-4xl leading-none text-white md:text-6xl">
+                    {selectedBook.title}
+                  </h2>
+
+                  <p className="mt-5 text-xs font-medium uppercase leading-5 tracking-[0.1em] text-white/40">
+                    {selectedBook.subtitle}
+                  </p>
+
+                  <p className="mt-7 text-sm leading-8 text-white/50">
+                    {selectedBook.description}
+                  </p>
+
+                  <p className="mt-5 text-sm leading-8 text-white/35">
+                    {selectedBook.extended}
+                  </p>
+
+                  <div className="mt-7 flex flex-wrap gap-2">
+                    {selectedBook.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full border border-white/10 bg-white/[0.02] px-3 py-2 text-[7px] uppercase tracking-[0.14em] text-white/40"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-9 flex flex-wrap gap-3">
+                    <a
+                      href={selectedBook.amazon}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-3 rounded-full bg-white px-6 py-4 text-[9px] font-bold uppercase tracking-[0.16em]"
+                      style={{ color: "#000" }} // ensure black text on white background
+                    >
+                      <FaAmazon size={14} />
+                      Buy on Amazon
+                    </a>
+
+                    <a
+                      href={selectedBook.selar}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-3 rounded-full border border-white/10 px-6 py-4 text-[9px] font-bold uppercase tracking-[0.16em] text-white"
+                    >
+                      Buy on Selar
+                      <ExternalLink size={12} />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
