@@ -333,9 +333,7 @@ export default function ContactPage() {
 
                   <p className="mt-3 max-w-lg text-sm leading-7 text-white/40">
                     Thank you for reaching out. Your message has been
-                    received by this form interface. Connect it to your
-                    preferred email service or API route to enable
-                    production delivery.
+                    received.
                   </p>
 
                   <button
