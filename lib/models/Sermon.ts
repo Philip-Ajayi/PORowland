@@ -1,23 +1,23 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface ISermon extends Document {
-  name: string;
+export interface IItem extends Document {
+  title: string;
   thumbnail?: string;
-  date: Date;
-  speaker: string;
-  audioFile?: string;
-  series?: string;
+  category?: string;
+  price?: number;
+  description?: string;
+  createdAt: Date;
 }
 
-const SermonSchema = new Schema<ISermon>({
-  name: { type: String },
+const ItemSchema = new Schema<IItem>({
+  title: { type: String, required: true },
   thumbnail: { type: String },
-  date: { type: Date },
-  speaker: { type: String },
-  audioFile: { type: String },
-  series: { type: String },
+  category: { type: String },
+  price: { type: Number },
+  description: { type: String },
+  createdAt: { type: Date, default: Date.now },
 });
 
-// Prevent model recompilation in development
-export const Sermon =
-  mongoose.models.Sermon || mongoose.model<ISermon>('Sermon', SermonSchema);
+// Prevent model recompilation in Next.js development
+export const Item =
+  mongoose.models.Item || mongoose.model<IItem>('Item', ItemSchema);
