@@ -10,6 +10,7 @@ const navigation = [
   { label: "Books", href: "/books" },
   { label: "Audio", href: "/audio" },
   { label: "Blog", href: "/blog" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export default function Navbar() {
