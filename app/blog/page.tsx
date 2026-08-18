@@ -566,7 +566,7 @@ export default function BlogPage() {
       </section>
 
       {/* ================================================================== */}
-      {/* FEATURED SWIPER                                                     */}
+      {/* FEATURED SWIPER — two-column grid from tablet up, stacked on mobile */}
       {/* ================================================================== */}
 
       {allPosts.length > 0 && (
@@ -593,9 +593,9 @@ export default function BlogPage() {
             >
               {allPosts.slice(0, 4).map((post) => (
                 <SwiperSlide key={post.id}>
-                  <article className="grid overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.025] lg:grid-cols-[1.05fr_0.95fr]">
+                  <article className="grid overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.025] md:grid-cols-[1.05fr_0.95fr]">
                     <div
-                      className="group relative min-h-[380px] overflow-hidden lg:min-h-[560px] cursor-pointer"
+                      className="group relative min-h-[300px] overflow-hidden md:min-h-[500px] cursor-pointer"
                       onClick={() => openPost(post)}
                     >
                       <BlogImage post={post} className="absolute inset-0 h-full w-full" />
