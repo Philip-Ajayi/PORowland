@@ -229,26 +229,15 @@ function ReadingModal({
               </button>
             </div>
 
-            {/* Scrollable content */}
+            {/* Scrollable content – duplicate image removed */}
             <div className="flex-1 overflow-y-auto p-4 md:p-8 prose prose-invert prose-sm md:prose-base max-w-none text-white">
-              {post.image && (
-                <div className="relative w-full h-48 md:h-64 rounded-xl overflow-hidden mb-6">
-                  <Image
-                    src={post.image}
-                    alt={post.title}
-                    fill
-                    unoptimized
-                    className="object-cover"
-                  />
-                </div>
-              )}
               <div
                 dangerouslySetInnerHTML={{ __html: post.content }}
                 className="blog-content"
               />
             </div>
 
-            {/* Footer – removed author and "View original" */}
+            {/* Footer */}
             <div className="shrink-0 flex items-center justify-end p-4 md:p-6 border-t border-white/10">
               <span className="text-[8px] uppercase tracking-[0.15em] text-white/20">
                 {post.date}
@@ -989,6 +978,41 @@ export default function BlogPage() {
           margin: 1.5rem 0;
           font-style: italic;
           color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Force light text and transparent backgrounds for feed content */
+        .blog-content,
+        .blog-content * {
+          color: #e0e0e0 !important;
+          background: transparent !important;
+          text-shadow: none !important;
+        }
+
+        .blog-content a {
+          color: #c9a96e !important;
+          text-decoration: underline !important;
+          text-underline-offset: 2px;
+        }
+
+        .blog-content a:hover {
+          color: #ead9ae !important;
+        }
+
+        .blog-content strong,
+        .blog-content b {
+          color: #ffffff !important;
+        }
+
+        .blog-content pre,
+        .blog-content code {
+          background: rgba(255, 255, 255, 0.08) !important;
+          color: #e0e0e0 !important;
+        }
+
+        .blog-content img {
+          max-width: 100% !important;
+          height: auto !important;
+          border-radius: 0.75rem;
         }
 
         /* Swiper overrides */
