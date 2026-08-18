@@ -448,14 +448,14 @@ export default function BlogPage() {
   return (
     <div ref={pageRef} className="overflow-hidden bg-[#070707] text-white">
       {/* ================================================================== */}
-      {/* HERO                                                               */}
+      {/* HERO — pixel height, featured image visible on all screens          */}
       {/* ================================================================== */}
 
-      <section className="blog-hero relative min-h-[92svh] overflow-hidden">
+      <section className="blog-hero relative min-h-[900px] overflow-hidden">
         <div className="absolute inset-0 mesh-bg opacity-80" />
         <div className="blog-hero-orb absolute -right-48 top-10 h-[600px] w-[600px] rounded-full bg-[#c9a96e]/10 blur-[150px]" />
 
-        <div className="container-wide relative mx-auto grid min-h-[92svh] items-center gap-14 pb-20 pt-32 lg:grid-cols-[1fr_0.9fr]">
+        <div className="container-wide relative mx-auto grid min-h-[900px] items-center gap-14 pb-20 pt-32 lg:grid-cols-[1fr_0.9fr]">
           <div className="relative z-10">
             <Reveal>
               <h1 className="display-xl mt-7 max-w-5xl text-white">
@@ -496,10 +496,10 @@ export default function BlogPage() {
             </Reveal>
           </div>
 
-          {/* Featured image */}
-          <div className="relative hidden min-h-[580px] lg:block">
+          {/* Featured image — now visible on all screens */}
+          <div className="relative block min-h-[400px] lg:min-h-[580px]">
             {allPosts.length > 0 && (
-              <div className="absolute right-0 top-1/2 h-[480px] w-[380px] -translate-y-1/2 rotate-3 rounded-[2rem] border border-white/10 bg-white/[0.02] p-3 backdrop-blur-xl">
+              <div className="mx-auto relative h-[400px] w-[300px] rotate-3 rounded-[2rem] border border-white/10 bg-white/[0.02] p-3 backdrop-blur-xl sm:h-[480px] sm:w-[380px] lg:absolute lg:right-0 lg:top-1/2 lg:-translate-y-1/2 lg:mx-0">
                 <div className="blog-hero-image group relative h-full overflow-hidden rounded-[1.5rem]">
                   <BlogImage post={allPosts[0]} priority className="absolute inset-0 h-full w-full" />
                   <div className="absolute bottom-0 left-0 right-0 p-7">
