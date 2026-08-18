@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 const navigation = [
   { label: "About", href: "/about" },
@@ -17,7 +17,6 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const touchStartY = useRef<number | null>(null);
 
   useEffect(() => {
     let previousY = window.scrollY;
@@ -48,20 +47,6 @@ export default function Navbar() {
       document.body.style.overflow = "";
     };
   }, [open]);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartY.current === null) return;
-
-    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
-    if (deltaY > 80) {
-      setOpen(false);
-    }
-    touchStartY.current = null;
-  };
 
   return (
     <>
@@ -143,15 +128,13 @@ export default function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-40 bg-black/80 backdrop-blur-2xl lg:hidden"
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
           >
             <motion.div
               initial={{ y: "-10%" }}
               animate={{ y: 0 }}
               exit={{ y: "-10%" }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="flex min-h-full flex-col justify-end px-5 pb-8 pt-28 overflow-y-auto max-h-[100dvh]"
+              className="flex min-h-full flex-col justify-end px-5 pb-8 pt-28"
             >
               <div className="mb-8">
                 <span className="eyebrow">Navigation</span>
