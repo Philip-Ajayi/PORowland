@@ -34,12 +34,11 @@ gsap.registerPlugin(ScrollTrigger);
 interface Sermon {
   _id: string;
   name: string;
-  thumbnail?: string;          // Google Drive file ID
-  date: string;                // ISO date string
+  thumbnail?: string;
+  date: string;
   speaker: string;
-  audioFile?: string;          // Google Drive file ID
+  audioFile?: string;
   series?: string;
-  __v?: number;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -77,8 +76,9 @@ export default function AudioPage() {
   const pageRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // State for sermons
+  // State for sermons and series
   const [sermons, setSermons] = useState<Sermon[]>([]);
+  const [seriesList, setSeriesList] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -91,31 +91,42 @@ export default function AudioPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  // Fetch sermons
+  const speaker = "Pastor Ope Rowland"; // adjust as needed
+
+  // Fetch data
   useEffect(() => {
-    const fetchSermons = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await fetch("/api/sermons");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        setSermons(data);
         setError(null);
+
+        // Fetch sermons
+        const sermonsRes = await fetch(`/api/sermon?speaker=${encodeURIComponent(speaker)}`);
+        if (!sermonsRes.ok) throw new Error(`Sermons API error: ${sermonsRes.status}`);
+        const sermonsData = await sermonsRes.json();
+        setSermons(sermonsData);
+
+        // Fetch series
+        const seriesRes = await fetch(`/api/sermon/series?speaker=${encodeURIComponent(speaker)}`);
+        if (!seriesRes.ok) throw new Error(`Series API error: ${seriesRes.status}`);
+        const seriesData = await seriesRes.json();
+        // seriesData is an array of strings (distinct series)
+        setSeriesList(seriesData.filter(Boolean));
       } catch (err: any) {
-        console.error("Failed to fetch sermons:", err);
-        setError("Could not load sermons. Please try again later.");
+        console.error("Failed to fetch data:", err);
+        setError("Could not load audio library. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
-    fetchSermons();
-  }, []);
 
-  // Derive unique series from sermons
+    fetchData();
+  }, [speaker]);
+
+  // All series options (including "All")
   const allSeries = useMemo(() => {
-    const seriesSet = new Set(sermons.map((s) => s.series).filter(Boolean) as string[]);
-    return ["All", ...Array.from(seriesSet)];
-  }, [sermons]);
+    return ["All", ...seriesList];
+  }, [seriesList]);
 
   // Filtered sermons
   const filteredSermons = useMemo(() => {
@@ -131,23 +142,20 @@ export default function AudioPage() {
     });
   }, [sermons, activeSeries, search]);
 
-  // Get active sermon for mini player
+  // Active sermon for mini player
   const activeSermon = useMemo(() => {
     return sermons.find((s) => s._id === currentAudioId) || null;
   }, [sermons, currentAudioId]);
 
   /* ------------------------------------------------------------------------ */
-  /* LENIS + GSAP                                                             */
+  /* LENIS + GSAP (unchanged)                                                 */
   /* ------------------------------------------------------------------------ */
 
   useEffect(() => {
     const page = pageRef.current;
     if (!page) return;
 
-    let lenis: {
-      raf: (time: number) => void;
-      destroy?: () => void;
-    } | null = null;
+    let lenis: { raf: (time: number) => void; destroy?: () => void } | null = null;
     let rafId = 0;
 
     const setupLenis = async () => {
@@ -482,33 +490,31 @@ export default function AudioPage() {
               1024: { slidesPerView: 3.1 },
             }}
           >
-            {allSeries
-              .filter((s) => s !== "All")
-              .map((series) => {
-                const sermon = sermons.find((s) => s.series === series);
-                if (!sermon) return null;
-                return (
-                  <SwiperSlide key={series}>
-                    <div className="group relative aspect-[1.35/1] overflow-hidden rounded-[1.5rem] border border-white/10">
-                      <Image
-                        src={getThumbnailUrl(sermon.thumbnail)}
-                        alt={series}
-                        fill
-                        unoptimized
-                        sizes="(max-width: 640px) 90vw, 33vw"
-                        className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-6">
-                        <p className="text-[8px] uppercase tracking-[0.18em] text-[#ead9ae]">
-                          Series
-                        </p>
-                        <h3 className="mt-2 font-display text-2xl">{series}</h3>
-                      </div>
+            {seriesList.map((series) => {
+              const sermon = sermons.find((s) => s.series === series);
+              if (!sermon) return null;
+              return (
+                <SwiperSlide key={series}>
+                  <div className="group relative aspect-[1.35/1] overflow-hidden rounded-[1.5rem] border border-white/10">
+                    <Image
+                      src={getThumbnailUrl(sermon.thumbnail)}
+                      alt={series}
+                      fill
+                      unoptimized
+                      sizes="(max-width: 640px) 90vw, 33vw"
+                      className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <p className="text-[8px] uppercase tracking-[0.18em] text-[#ead9ae]">
+                        Series
+                      </p>
+                      <h3 className="mt-2 font-display text-2xl">{series}</h3>
                     </div>
-                  </SwiperSlide>
-                );
-              })}
+                  </div>
+                </SwiperSlide>
+              );
+            })}
           </Swiper>
         </div>
       </section>
