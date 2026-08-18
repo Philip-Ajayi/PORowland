@@ -485,17 +485,17 @@ export default function HomePage() {
   return (
     <div ref={pageRef} className="overflow-hidden">
       {/* ------------------------------------------------------------------ */}
-      {/* HERO (unchanged)                                                   */}
+      {/* HERO — pixel height, responsive portrait visible on all screens    */}
       {/* ------------------------------------------------------------------ */}
 
-      <section className="hero-section relative min-h-[100svh] overflow-hidden">
+      <section className="hero-section relative min-h-[900px] overflow-hidden">
         <div className="absolute inset-0 mesh-bg" />
 
         <div className="hero-orb absolute -right-40 top-20 h-[500px] w-[500px] rounded-full bg-[#c9a96e]/10 blur-[120px]" />
 
         <div className="absolute bottom-0 left-0 right-0 h-72 bg-gradient-to-t from-[#070707] to-transparent" />
 
-        <div className="container-wide relative mx-auto flex min-h-[100svh] items-center pb-16 pt-32">
+        <div className="container-wide relative mx-auto flex min-h-[900px] flex-col items-start justify-center gap-8 pb-16 pt-32 lg:flex-row lg:items-center">
           <div className="hero-copy relative z-20 w-full lg:max-w-[78%]">
             <MagneticText />
 
@@ -525,8 +525,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Portrait with local image */}
-          <div className="hero-portrait hero-image-wrap absolute bottom-[-5%] right-[-8%] z-10 hidden h-[90vh] w-[47vw] max-w-[690px] lg:block">
+          {/* Portrait — visible on all screens */}
+          <div className="hero-portrait hero-image-wrap relative z-10 mx-auto h-[70vh] max-h-[600px] w-full max-w-[400px] lg:absolute lg:bottom-[-5%] lg:right-[-8%] lg:mx-0 lg:h-[90vh] lg:max-h-none lg:w-[47vw] lg:max-w-[690px]">
             <div className="vignette relative h-full overflow-hidden rounded-[40%_40%_0_0] border border-white/10">
               <Image
                 src="/Ope.jpg"
