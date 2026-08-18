@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -16,6 +16,8 @@ import {
   Search,
   Volume2,
   X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import gsap from "gsap";
@@ -59,7 +61,8 @@ function formatDate(isoString: string): string {
 }
 
 function getThumbnailUrl(fileId: string | undefined): string {
-  if (!fileId) return "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=1200&q=85";
+  if (!fileId)
+    return "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&w=1200&q=85";
   return `https://drive.google.com/thumbnail?id=${fileId}&sz=w500`;
 }
 
@@ -72,6 +75,9 @@ function getAudioUrl(fileId: string | undefined): string {
 /* PAGE                                                                       */
 /* -------------------------------------------------------------------------- */
 
+const INITIAL_DISPLAY = 6;
+const LOAD_MORE = 6;
+
 export default function AudioPage() {
   const pageRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -82,6 +88,12 @@ export default function AudioPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Lazy loading state
+  const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
   // Filter and search
   const [activeSeries, setActiveSeries] = useState("All");
   const [search, setSearch] = useState("");
@@ -91,7 +103,7 @@ export default function AudioPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const speaker = "Pastor Ope Rowland"; // adjust as needed
+  const speaker = "Pastor Ope Rowland";
 
   // Fetch data
   useEffect(() => {
@@ -100,17 +112,21 @@ export default function AudioPage() {
         setLoading(true);
         setError(null);
 
-        // Fetch sermons
-        const sermonsRes = await fetch(`/api/sermon?speaker=${encodeURIComponent(speaker)}`);
-        if (!sermonsRes.ok) throw new Error(`Sermons API error: ${sermonsRes.status}`);
+        const sermonsRes = await fetch(
+          `/api/sermon?speaker=${encodeURIComponent(speaker)}`
+        );
+        if (!sermonsRes.ok)
+          throw new Error(`Sermons API error: ${sermonsRes.status}`);
         const sermonsData = await sermonsRes.json();
         setSermons(sermonsData);
+        setHasMore(sermonsData.length > INITIAL_DISPLAY);
 
-        // Fetch series
-        const seriesRes = await fetch(`/api/sermon/series?speaker=${encodeURIComponent(speaker)}`);
-        if (!seriesRes.ok) throw new Error(`Series API error: ${seriesRes.status}`);
+        const seriesRes = await fetch(
+          `/api/sermon/series?speaker=${encodeURIComponent(speaker)}`
+        );
+        if (!seriesRes.ok)
+          throw new Error(`Series API error: ${seriesRes.status}`);
         const seriesData = await seriesRes.json();
-        // seriesData is an array of strings (distinct series)
         setSeriesList(seriesData.filter(Boolean));
       } catch (err: any) {
         console.error("Failed to fetch data:", err);
@@ -128,10 +144,11 @@ export default function AudioPage() {
     return ["All", ...seriesList];
   }, [seriesList]);
 
-  // Filtered sermons
-  const filteredSermons = useMemo(() => {
+  // Filtered sermons (full list)
+  const filteredFull = useMemo(() => {
     return sermons.filter((sermon) => {
-      const matchesSeries = activeSeries === "All" || sermon.series === activeSeries;
+      const matchesSeries =
+        activeSeries === "All" || sermon.series === activeSeries;
       const query = search.toLowerCase().trim();
       const matchesSearch =
         !query ||
@@ -142,20 +159,57 @@ export default function AudioPage() {
     });
   }, [sermons, activeSeries, search]);
 
+  // Displayed sermons (lazy-loaded subset)
+  const displayedSermons = useMemo(() => {
+    return filteredFull.slice(0, displayCount);
+  }, [filteredFull, displayCount]);
+
+  // Determine if more to load
+  useEffect(() => {
+    setHasMore(displayCount < filteredFull.length);
+  }, [displayCount, filteredFull.length]);
+
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    if (!loadMoreRef.current || !hasMore || loadingMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          setLoadingMore(true);
+          setTimeout(() => {
+            setDisplayCount((prev) => Math.min(prev + LOAD_MORE, filteredFull.length));
+            setLoadingMore(false);
+          }, 400);
+        }
+      },
+      { threshold: 0.1, rootMargin: "100px" }
+    );
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, filteredFull.length]);
+
+  // Reset display count when filters change
+  useEffect(() => {
+    setDisplayCount(INITIAL_DISPLAY);
+  }, [activeSeries, search]);
+
   // Active sermon for mini player
   const activeSermon = useMemo(() => {
     return sermons.find((s) => s._id === currentAudioId) || null;
   }, [sermons, currentAudioId]);
 
   /* ------------------------------------------------------------------------ */
-  /* LENIS + GSAP (unchanged)                                                 */
+  /* LENIS + GSAP                                                             */
   /* ------------------------------------------------------------------------ */
 
   useEffect(() => {
     const page = pageRef.current;
     if (!page) return;
 
-    let lenis: { raf: (time: number) => void; destroy?: () => void } | null = null;
+    let lenis: { raf: (time: number) => void; destroy?: () => void } | null =
+      null;
     let rafId = 0;
 
     const setupLenis = async () => {
@@ -324,6 +378,28 @@ export default function AudioPage() {
     setProgress(value);
   };
 
+  // Scroll to audio library and filter
+  const handleSeriesClick = (series: string) => {
+    setActiveSeries(series);
+    // Scroll to audio library section
+    const library = document.getElementById("audio-library");
+    if (library) {
+      library.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  // Filter pill scroll buttons
+  const filterContainerRef = useRef<HTMLDivElement>(null);
+  const scrollFilters = (direction: "left" | "right") => {
+    if (!filterContainerRef.current) return;
+    const container = filterContainerRef.current;
+    const scrollAmount = container.clientWidth * 0.6;
+    container.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
+
   /* ------------------------------------------------------------------------ */
   /* RENDER                                                                   */
   /* ------------------------------------------------------------------------ */
@@ -380,7 +456,7 @@ export default function AudioPage() {
             </div>
           </div>
 
-          {/* Hero artwork – show first sermon if available */}
+          {/* Hero artwork */}
           <div className="relative hidden min-h-[570px] lg:block">
             {sermons.length > 0 && (
               <div className="absolute right-0 top-1/2 h-[480px] w-[390px] -translate-y-1/2 rotate-3 rounded-[2rem] border border-white/10 bg-white/[0.02] p-3 backdrop-blur-xl">
@@ -459,7 +535,7 @@ export default function AudioPage() {
       </section>
 
       {/* ================================================================== */}
-      {/* SERIES SWIPER                                                       */}
+      {/* SERIES SWIPER (clickable)                                          */}
       {/* ================================================================== */}
 
       <section className="border-y border-white/10 bg-[#0a0a0a] py-24 md:py-32">
@@ -472,7 +548,7 @@ export default function AudioPage() {
               </h2>
             </div>
             <span className="hidden text-[8px] uppercase tracking-[0.2em] text-white/20 md:block">
-              Swipe / drag
+              Tap to filter
             </span>
           </div>
 
@@ -495,7 +571,10 @@ export default function AudioPage() {
               if (!sermon) return null;
               return (
                 <SwiperSlide key={series}>
-                  <div className="group relative aspect-[1.35/1] overflow-hidden rounded-[1.5rem] border border-white/10">
+                  <button
+                    onClick={() => handleSeriesClick(series)}
+                    className="group relative aspect-[1.35/1] w-full overflow-hidden rounded-[1.5rem] border border-white/10 transition-all hover:border-[#c9a96e]/40"
+                  >
                     <Image
                       src={getThumbnailUrl(sermon.thumbnail)}
                       alt={series}
@@ -505,13 +584,16 @@ export default function AudioPage() {
                       className="object-cover transition-transform duration-1000 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="absolute bottom-0 left-0 right-0 p-6 text-left">
                       <p className="text-[8px] uppercase tracking-[0.18em] text-[#ead9ae]">
                         Series
                       </p>
                       <h3 className="mt-2 font-display text-2xl">{series}</h3>
+                      <span className="mt-4 inline-block text-[8px] font-bold uppercase tracking-[0.16em] text-white/40 group-hover:text-[#ead9ae]">
+                        Filter by series →
+                      </span>
                     </div>
-                  </div>
+                  </button>
                 </SwiperSlide>
               );
             })}
@@ -520,7 +602,7 @@ export default function AudioPage() {
       </section>
 
       {/* ================================================================== */}
-      {/* AUDIO LIBRARY                                                       */}
+      {/* AUDIO LIBRARY (with lazy loading and scrollable filter pills)      */}
       {/* ================================================================== */}
 
       <section id="audio-library" className="relative py-24 md:py-36">
@@ -558,25 +640,47 @@ export default function AudioPage() {
             </div>
           </div>
 
-          {/* Series filters */}
-          <div className="mt-10 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-            {allSeries.map((series) => {
-              const active = activeSeries === series;
-              return (
-                <button
-                  key={series}
-                  type="button"
-                  onClick={() => setActiveSeries(series)}
-                  className={`shrink-0 rounded-full border px-4 py-2.5 text-[8px] font-bold uppercase tracking-[0.14em] transition-all ${
-                    active
-                      ? "border-[#c9a96e]/40 bg-[#c9a96e]/10 text-[#ead9ae]"
-                      : "border-white/10 text-white/30 hover:border-white/20 hover:text-white/60"
-                  }`}
-                >
-                  {series}
-                </button>
-              );
-            })}
+          {/* Series filters with scroll buttons */}
+          <div className="mt-10 flex items-center gap-3">
+            <button
+              onClick={() => scrollFilters("left")}
+              className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 text-white/40 hover:border-white/30 hover:text-white md:flex"
+              aria-label="Scroll filters left"
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            <div
+              ref={filterContainerRef}
+              className="flex gap-2 overflow-x-auto pb-2 scrollbar-none scroll-smooth"
+              style={{ scrollSnapType: "x mandatory" }}
+            >
+              {allSeries.map((series) => {
+                const active = activeSeries === series;
+                return (
+                  <button
+                    key={series}
+                    type="button"
+                    onClick={() => setActiveSeries(series)}
+                    className={`shrink-0 rounded-full border px-4 py-2.5 text-[8px] font-bold uppercase tracking-[0.14em] transition-all scroll-snap-align-start ${
+                      active
+                        ? "border-[#c9a96e]/40 bg-[#c9a96e]/10 text-[#ead9ae]"
+                        : "border-white/10 text-white/30 hover:border-white/20 hover:text-white/60"
+                    }`}
+                  >
+                    {series}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => scrollFilters("right")}
+              className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 text-white/40 hover:border-white/30 hover:text-white md:flex"
+              aria-label="Scroll filters right"
+            >
+              <ChevronRight size={16} />
+            </button>
           </div>
 
           {/* Loading / Error */}
@@ -592,167 +696,210 @@ export default function AudioPage() {
             </div>
           )}
 
-          {/* Audio cards */}
+          {/* Audio cards with lazy loading */}
           {!loading && !error && (
-            <motion.div layout className="mt-14 grid gap-5">
-              <AnimatePresence mode="popLayout">
-                {filteredSermons.map((sermon, index) => {
-                  const active = currentAudioId === sermon._id;
-                  const thumbnailUrl = getThumbnailUrl(sermon.thumbnail);
-                  const audioUrl = getAudioUrl(sermon.audioFile);
+            <>
+              <motion.div layout className="mt-14 grid gap-5">
+                <AnimatePresence mode="popLayout">
+                  {displayedSermons.map((sermon, index) => {
+                    const active = currentAudioId === sermon._id;
+                    const thumbnailUrl = getThumbnailUrl(sermon.thumbnail);
+                    const audioUrl = getAudioUrl(sermon.audioFile);
 
-                  return (
-                    <motion.article
-                      key={sermon._id}
-                      layout
-                      initial={{ opacity: 0, y: 35 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 20 }}
-                      transition={{
-                        duration: 0.45,
-                        delay: index * 0.035,
-                      }}
-                      className={`audio-card group relative overflow-hidden rounded-[1.75rem] border transition-all duration-500 ${
-                        active
-                          ? "border-[#c9a96e]/30 bg-[#c9a96e]/[0.045]"
-                          : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.035]"
-                      }`}
-                    >
-                      <div className="grid gap-0 lg:grid-cols-[250px_1fr_auto]">
-                        {/* Thumbnail */}
-                        <div className="relative aspect-[1.4/1] overflow-hidden lg:aspect-auto lg:min-h-[210px]">
-                          <Image
-                            src={thumbnailUrl}
-                            alt={sermon.name}
-                            fill
-                            unoptimized
-                            sizes="250px"
-                            className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/30" />
+                    return (
+                      <motion.article
+                        key={sermon._id}
+                        layout
+                        initial={{ opacity: 0, y: 35 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        transition={{
+                          duration: 0.45,
+                          delay: index * 0.035,
+                        }}
+                        className={`audio-card group relative overflow-hidden rounded-[1.75rem] border transition-all duration-500 ${
+                          active
+                            ? "border-[#c9a96e]/30 bg-[#c9a96e]/[0.045]"
+                            : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.035]"
+                        }`}
+                      >
+                        <div className="grid gap-0 lg:grid-cols-[250px_1fr_auto]">
+                          {/* Thumbnail */}
+                          <div className="relative aspect-[1.4/1] overflow-hidden lg:aspect-auto lg:min-h-[210px]">
+                            <Image
+                              src={thumbnailUrl}
+                              alt={sermon.name}
+                              fill
+                              unoptimized
+                              sizes="250px"
+                              className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/30" />
 
-                          <button
-                            type="button"
-                            aria-label={
-                              active && isPlaying
-                                ? `Pause ${sermon.name}`
-                                : `Play ${sermon.name}`
-                            }
-                            onClick={() => playAudio(sermon)}
-                            className="absolute left-5 top-1/2 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white text-black shadow-2xl transition-all duration-300 hover:scale-110"
-                          >
-                            {active && isPlaying ? (
-                              <Pause size={17} />
-                            ) : (
-                              <Play size={17} fill="currentColor" />
-                            )}
-                          </button>
-
-                          {active && isPlaying && (
-                            <div className="absolute bottom-4 left-5 flex items-end gap-1">
-                              {[12, 20, 15, 24, 17].map((height, i) => (
-                                <motion.span
-                                  key={i}
-                                  animate={{
-                                    height: [height / 2, height, height / 1.5, height],
-                                  }}
-                                  transition={{
-                                    duration: 0.7,
-                                    repeat: Infinity,
-                                    delay: i * 0.1,
-                                  }}
-                                  className="w-1 rounded-full bg-white"
-                                />
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Details */}
-                        <div className="flex flex-col justify-center p-6 md:p-8">
-                          <div className="flex flex-wrap items-center gap-3 text-[8px] uppercase tracking-[0.16em]">
-                            <span className="text-[#ead9ae]">
-                              {sermon.series || "Sermon"}
-                            </span>
-                            <span className="h-1 w-1 rounded-full bg-white/15" />
-                            <span className="text-white/25">{sermon.speaker}</span>
-                          </div>
-
-                          <h3 className="mt-4 font-display text-2xl leading-tight text-white md:text-3xl">
-                            {sermon.name}
-                          </h3>
-
-                          <div className="mt-5 flex flex-wrap items-center gap-5 text-[8px] uppercase tracking-[0.15em] text-white/25">
-                            <span className="flex items-center gap-2">
-                              <CalendarDays size={12} />
-                              {formatDate(sermon.date)}
-                            </span>
-                            <span className="flex items-center gap-2">
-                              <Headphones size={12} />
-                              Audio
-                            </span>
-                          </div>
-
-                          {/* Progress */}
-                          {active && (
-                            <div className="mt-6 flex items-center gap-3">
-                              <span className="text-[8px] text-white/25">
-                                {Math.round(progress)}%
-                              </span>
-                              <input
-                                aria-label="Audio progress"
-                                type="range"
-                                min="0"
-                                max="100"
-                                step="0.1"
-                                value={progress}
-                                onChange={(event) =>
-                                  seekAudio(Number(event.target.value))
-                                }
-                                className="audio-range h-1 w-full cursor-pointer appearance-none rounded-full bg-white/10"
-                              />
-                              <Volume2 size={13} className="shrink-0 text-white/25" />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex items-center gap-2 border-t border-white/10 p-6 lg:border-l lg:border-t-0 lg:p-8">
-                          <button
-                            type="button"
-                            onClick={() => playAudio(sermon)}
-                            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-white/50 transition-all hover:border-white/30 hover:bg-white hover:text-black"
-                            title="Play on site"
-                          >
-                            {active && isPlaying ? (
-                              <Pause size={14} />
-                            ) : (
-                              <Play size={14} fill="currentColor" />
-                            )}
-                          </button>
-
-                          {audioUrl && (
-                            <a
-                              href={`https://drive.google.com/uc?export=download&id=${sermon.audioFile}`}
-                              download
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-white/50 transition-all hover:border-[#c9a96e]/40 hover:bg-[#c9a96e]/10 hover:text-[#ead9ae]"
-                              title="Download audio"
+                            <button
+                              type="button"
+                              aria-label={
+                                active && isPlaying
+                                  ? `Pause ${sermon.name}`
+                                  : `Play ${sermon.name}`
+                              }
+                              onClick={() => playAudio(sermon)}
+                              className="absolute left-5 top-1/2 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white text-black shadow-2xl transition-all duration-300 hover:scale-110"
                             >
-                              <Download size={14} />
-                            </a>
-                          )}
+                              {active && isPlaying ? (
+                                <Pause size={17} />
+                              ) : (
+                                <Play size={17} fill="currentColor" />
+                              )}
+                            </button>
+
+                            {active && isPlaying && (
+                              <div className="absolute bottom-4 left-5 flex items-end gap-1">
+                                {[12, 20, 15, 24, 17].map((height, i) => (
+                                  <motion.span
+                                    key={i}
+                                    animate={{
+                                      height: [
+                                        height / 2,
+                                        height,
+                                        height / 1.5,
+                                        height,
+                                      ],
+                                    }}
+                                    transition={{
+                                      duration: 0.7,
+                                      repeat: Infinity,
+                                      delay: i * 0.1,
+                                    }}
+                                    className="w-1 rounded-full bg-white"
+                                  />
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Details */}
+                          <div className="flex flex-col justify-center p-6 md:p-8">
+                            <div className="flex flex-wrap items-center gap-3 text-[8px] uppercase tracking-[0.16em]">
+                              <span className="text-[#ead9ae]">
+                                {sermon.series || "Sermon"}
+                              </span>
+                              <span className="h-1 w-1 rounded-full bg-white/15" />
+                              <span className="text-white/25">
+                                {sermon.speaker}
+                              </span>
+                            </div>
+
+                            <h3 className="mt-4 font-display text-2xl leading-tight text-white md:text-3xl">
+                              {sermon.name}
+                            </h3>
+
+                            <div className="mt-5 flex flex-wrap items-center gap-5 text-[8px] uppercase tracking-[0.15em] text-white/25">
+                              <span className="flex items-center gap-2">
+                                <CalendarDays size={12} />
+                                {formatDate(sermon.date)}
+                              </span>
+                              <span className="flex items-center gap-2">
+                                <Headphones size={12} />
+                                Audio
+                              </span>
+                            </div>
+
+                            {/* Progress */}
+                            {active && (
+                              <div className="mt-6 flex items-center gap-3">
+                                <span className="text-[8px] text-white/25">
+                                  {Math.round(progress)}%
+                                </span>
+                                <input
+                                  aria-label="Audio progress"
+                                  type="range"
+                                  min="0"
+                                  max="100"
+                                  step="0.1"
+                                  value={progress}
+                                  onChange={(event) =>
+                                    seekAudio(Number(event.target.value))
+                                  }
+                                  className="audio-range h-1 w-full cursor-pointer appearance-none rounded-full bg-white/10"
+                                />
+                                <Volume2
+                                  size={13}
+                                  className="shrink-0 text-white/25"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex items-center gap-2 border-t border-white/10 p-6 lg:border-l lg:border-t-0 lg:p-8">
+                            <button
+                              type="button"
+                              onClick={() => playAudio(sermon)}
+                              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-white/50 transition-all hover:border-white/30 hover:bg-white hover:text-black"
+                              title="Play on site"
+                            >
+                              {active && isPlaying ? (
+                                <Pause size={14} />
+                              ) : (
+                                <Play size={14} fill="currentColor" />
+                              )}
+                            </button>
+
+                            {audioUrl && (
+                              <a
+                                href={`https://drive.google.com/uc?export=download&id=${sermon.audioFile}`}
+                                download
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-white/50 transition-all hover:border-[#c9a96e]/40 hover:bg-[#c9a96e]/10 hover:text-[#ead9ae]"
+                                title="Download audio"
+                              >
+                                <Download size={14} />
+                              </a>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </motion.article>
-                  );
-                })}
-              </AnimatePresence>
-            </motion.div>
+                      </motion.article>
+                    );
+                  })}
+                </AnimatePresence>
+              </motion.div>
+
+              {/* Load more sentinel */}
+              {hasMore && displayedSermons.length < filteredFull.length && (
+                <div ref={loadMoreRef} className="mt-12 flex justify-center">
+                  {loadingMore ? (
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#c9a96e] border-t-transparent" />
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setLoadingMore(true);
+                        setTimeout(() => {
+                          setDisplayCount((prev) =>
+                            Math.min(prev + LOAD_MORE, filteredFull.length)
+                          );
+                          setLoadingMore(false);
+                        }, 400);
+                      }}
+                      className="inline-flex items-center gap-2 rounded-full border border-white/10 px-6 py-3 text-[8px] font-bold uppercase tracking-[0.16em] text-white/60 hover:border-white/30 hover:text-white transition-colors"
+                    >
+                      Load more
+                      <ArrowDown size={14} />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {!hasMore && filteredFull.length > INITIAL_DISPLAY && (
+                <div className="mt-16 text-center text-[8px] uppercase tracking-[0.2em] text-white/20">
+                  — You've reached the end —
+                </div>
+              )}
+            </>
           )}
 
-          {!loading && !error && filteredSermons.length === 0 && (
+          {!loading && !error && filteredFull.length === 0 && (
             <div className="py-24 text-center">
               <Headphones size={30} className="mx-auto text-white/20" />
               <p className="mt-5 text-sm text-white/30">
@@ -793,7 +940,11 @@ export default function AudioPage() {
                   onClick={() => playAudio(activeSermon)}
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-black"
                 >
-                  {isPlaying ? <Pause size={14} /> : <Play size={14} fill="currentColor" />}
+                  {isPlaying ? (
+                    <Pause size={14} />
+                  ) : (
+                    <Play size={14} fill="currentColor" />
+                  )}
                 </button>
 
                 <div className="min-w-0 flex-1">
