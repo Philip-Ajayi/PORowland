@@ -485,7 +485,7 @@ export default function HomePage() {
   return (
     <div ref={pageRef} className="overflow-hidden">
       {/* ------------------------------------------------------------------ */}
-      {/* HERO (unchanged)                                                   */}
+      {/* HERO (updated portrait)                                            */}
       {/* ------------------------------------------------------------------ */}
 
       <section className="hero-section relative min-h-[100svh] overflow-hidden">
@@ -525,8 +525,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Portrait with local image */}
-          <div className="hero-portrait hero-image-wrap absolute bottom-[-5%] right-[-8%] z-10 hidden h-[90vh] w-[47vw] max-w-[690px] lg:block">
+          {/* Portrait with local image – now visible on all screens, fixed pixel dimensions */}
+          <div className="hero-portrait hero-image-wrap absolute bottom-[-3%] right-[-6%] z-10 h-[400px] w-[300px] sm:bottom-[-5%] sm:right-[-8%] sm:h-[520px] sm:w-[390px] lg:h-[720px] lg:w-[540px]">
             <div className="vignette relative h-full overflow-hidden rounded-[40%_40%_0_0] border border-white/10">
               <Image
                 src="/Ope.jpg"
